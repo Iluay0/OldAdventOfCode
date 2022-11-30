@@ -128,14 +128,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="2021\Day3\Part1.cpp" />
-    <ClCompile Include="2021\Day3\Part2.cpp" />
+    <ClCompile Include="2021\Day4\Part1.cpp" />
+    <ClCompile Include="2021\Day4\Part2.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utils\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="2021\Day3\Part1.h" />
-    <ClInclude Include="2021\Day3\Part2.h" />
+    <ClInclude Include="2021\Day4\Part1.h" />
+    <ClInclude Include="2021\Day4\Part2.h" />
     <ClInclude Include="Utils\Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
