@@ -12,5 +12,5 @@ int main()
         inputs.push_back(line);
     }
 
-    Part1::Run(inputs);
+    Part2::Run(inputs);
 }
