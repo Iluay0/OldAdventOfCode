@@ -24,7 +24,7 @@ int Utils::listSum(std::list<int> list)
     return sum;
 }
 
-int Utils::binaryToLL(long long n)
+int Utils::binaryToInt(long long n)
 {
     int dec = 0, i = 0, rem;
 

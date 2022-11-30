@@ -18,5 +18,5 @@ class Utils
 public:
     static std::vector<std::string> split(const std::string& str, char delimiter);
     static int listSum(std::list<int> list);
-    static int binaryToLL(long long n);
+    static int binaryToInt(long long n);
 };
