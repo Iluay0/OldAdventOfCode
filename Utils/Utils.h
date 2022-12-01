@@ -13,6 +13,7 @@
 #include <chrono>
 #include <regex>
 #include <map>
+#include <deque>
 
 class Utils
 {
@@ -21,4 +22,5 @@ public:
     static int listSum(std::list<int> list);
     static int binaryToInt(long long n);
     static void replaceAll(std::string& str, const std::string& from, const std::string& to);
+    static bool isShuffledSubstring(std::string A, std::string B);
 };
