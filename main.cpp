@@ -1,4 +1,5 @@
 ﻿#include "Utils/Utils.h"
+#include "2021/Day2/Part1.h"
 #include "2021/Day2/Part2.h"
 
 int main()
