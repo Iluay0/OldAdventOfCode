@@ -20,7 +20,8 @@
 class Utils
 {
 public:
-    static std::vector<std::string> split(const std::string& str, char delimiter);
+    static std::vector<std::string> split(const std::string& str, const std::string& delimiter);
+    static std::string join(const std::list<std::string>& list, char delimiter);
     static int listSum(std::list<int> list);
     static int binaryToInt(long long n);
     static void replaceAll(std::string& str, const std::string& from, const std::string& to);

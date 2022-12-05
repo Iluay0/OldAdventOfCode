@@ -1,19 +1,29 @@
 #include "Utils.h"
 
-std::vector<std::string> Utils::split(const std::string& str, char delimiter)
+std::vector<std::string> Utils::split(const std::string& str, const std::string& delimiter)
 {
-    auto result = std::vector<std::string>{};
+    std::vector<std::string> strings;
 
-    auto range = str |
-        std::ranges::views::split(delimiter) |
-        std::ranges::views::transform([](auto&& r) -> std::string {
-        const auto data = &*r.begin();
-        const auto size = static_cast<std::size_t>(std::ranges::distance(r));
+    std::string::size_type pos = 0;
+    std::string::size_type prev = 0;
+    while ((pos = str.find(delimiter, prev)) != std::string::npos)
+    {
+        strings.push_back(str.substr(prev, pos - prev));
+        prev = pos + delimiter.size();
+    }
 
-        return std::string{ data, size };
-            });
+    // To get the last substring (or only, if delimiter is not found)
+    strings.push_back(str.substr(prev));
 
-    return { std::ranges::begin(range), std::ranges::end(range) };
+    return strings;
+}
+
+std::string Utils::join(const std::list<std::string>& list, char delimiter)
+{
+    std::string str = "";
+    for (auto& it : list)
+        str += it + delimiter;
+    return str;
 }
 
 int Utils::listSum(std::list<int> list)
