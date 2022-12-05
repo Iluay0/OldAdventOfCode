@@ -5,7 +5,8 @@ void Part2::Run(std::list<std::string> inputs)
 {
 	int sum = 0;
 	std::vector<char> chars;
-	for (int i = 0; i <= inputs.size(); i++)
+	int i = 0;
+	while(true)
 	{
 		auto it = inputs.begin();
 		std::advance(it, i);
@@ -43,6 +44,7 @@ void Part2::Run(std::list<std::string> inputs)
 
 			chars = charsLeft;
 		}
+		i++;
 	}
 
 	std::cout << sum;
