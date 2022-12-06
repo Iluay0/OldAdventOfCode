@@ -8,7 +8,7 @@ struct Pair
 
 	void SetValues(const std::string& input)
 	{
-		auto values = Utils::split(input, ('-'));
+		auto values = Utils::split(input, ("-"));
 		begin = stoi(values[0]);
 		end = stoi(values[1]);
 	}
@@ -26,7 +26,7 @@ void Part1::Run(std::list<std::string> inputs)
 	int amount = 0;
 	for (auto& it : inputs)
 	{
-		auto pairs = Utils::split(it, (','));
+		auto pairs = Utils::split(it, (","));
 		Pair pairOne;
 		pairOne.SetValues(pairs[0]);
 		Pair pairTwo;
