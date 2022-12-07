@@ -34,13 +34,6 @@ struct Directory
 
 	Directory* getSubDirectoryWithSmallestSizeMoreThan(int size, int max)
 	{
-		std::cout << getSize() << " " << getPath() <<  "\n";
-		if (getSize() < size)
-		{
-			std::cout << "skip\n";
-			return nullptr;
-		}
-
 		Directory* pDir = this;
 		for (auto& it : subDirectories)
 		{
@@ -52,14 +45,6 @@ struct Directory
 			}
 		}
 		return pDir;
-	}
-
-	std::string getPath()
-	{
-		if (!pParentDirectory || name == "")
-			return name;
-
-		return pParentDirectory->getPath() + "/" + name;
 	}
 
 	int getTotalSizeOfSubDirectoriesWithSizeLessThan(int size)
