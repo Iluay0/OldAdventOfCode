@@ -24,10 +24,7 @@
     <ClCompile Include="Utils\Utils.cpp">
       <Filter>Source Files\Utils</Filter>
     </ClCompile>
-    <ClCompile Include="2021\Day5\Part1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="2021\Day5\Part2.cpp">
+    <ClCompile Include="2022\Day7\Exercise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,10 +32,10 @@
     <ClInclude Include="Utils\Utils.h">
       <Filter>Source Files\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="2021\Day5\Part1.h">
+    <ClInclude Include="2022\Day7\Part1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="2021\Day5\Part2.h">
+    <ClInclude Include="2022\Day7\Part2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

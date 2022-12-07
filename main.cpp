@@ -1,6 +1,5 @@
 ﻿#include "Utils/Utils.h"
-#include "2022/Day2/Part1.h"
-#include "2022/Day2/Part2.h"
+#include "2022/Day7/Exercise.h"
 
 int main()
 {
@@ -12,5 +11,5 @@ int main()
         inputs.push_back(line);
     }
 
-    Part2::Run(inputs);
+    Exercise::Part2(inputs);
 }
