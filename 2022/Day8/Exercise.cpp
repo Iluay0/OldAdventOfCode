@@ -31,23 +31,35 @@ int getVisibility(std::vector<std::vector<int>>& treeHeights, int x, int y)
 	int curValue = treeHeights[x][y];
 	for (int i = x - 1; i >= 0; i--)
 	{
-		if (treeHeights[i][y] >= curValue && (visibility & Visibility::Left))
+		if (treeHeights[i][y] >= curValue)
+		{
 			visibility &= ~Visibility::Left;
+			break;
+		}
 	}
 	for (int i = x + 1; i < treeHeights.size(); i++)
 	{
-		if (treeHeights[i][y] >= curValue && (visibility & Visibility::Right))
+		if (treeHeights[i][y] >= curValue)
+		{
 			visibility &= ~Visibility::Right;
+			break;
+		}
 	}
 	for (int i = y - 1; i >= 0; i--)
 	{
-		if (treeHeights[x][i] >= curValue && (visibility & Visibility::Top))
+		if (treeHeights[x][i] >= curValue)
+		{
 			visibility &= ~Visibility::Top;
+			break;
+		}
 	}
 	for (int i = y + 1; i < treeHeights[x].size(); i++)
 	{
-		if (treeHeights[x][i] >= curValue && (visibility & Visibility::Bottom))
+		if (treeHeights[x][i] >= curValue)
+		{
 			visibility &= ~Visibility::Bottom;
+			break;
+		}
 	}
 
 	return visibility;
