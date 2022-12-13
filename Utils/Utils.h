@@ -16,6 +16,7 @@
 #include <deque>
 #include <set>
 #include <windows.h>
+#include <ctype.h>
 
 class Utils
 {
