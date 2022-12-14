@@ -1,6 +1,8 @@
 #include "../../Utils/Utils.h"
 #include "Exercise.h"
 
+#define __RENDER
+
 enum BlockType
 {
 	Rock = 0,
@@ -21,18 +23,13 @@ struct Block
 	}
 };
 
-void render(const std::vector<Block>& blocks, const std::pair<uint16_t, uint16_t>& minMaxX, const std::pair<uint16_t, uint16_t>& minMaxY, Block* pCurrentBlock)
+void renderBg(const std::vector<Block>& blocks, const std::pair<uint16_t, uint16_t>& minMaxX, const std::pair<uint16_t, uint16_t>& minMaxY)
 {
 	std::string render = "";
 	for (uint16_t y = minMaxY.first; y <= minMaxY.second + 2; y++)
 	{
 		for (uint16_t x = minMaxX.first; x <= minMaxX.second; x++)
 		{
-			if (x == pCurrentBlock->x && y == pCurrentBlock->y)
-			{
-				render += "\x1b[31mo\x1b[0m";
-				continue;
-			}
 			if (y == minMaxY.second + 2)
 			{
 				render += "\x1b[35m#\x1b[0m";
@@ -43,16 +40,13 @@ void render(const std::vector<Block>& blocks, const std::pair<uint16_t, uint16_t
 					return block.x == x && block.y == y;
 				});
 
-			std::string shape = ".";
+			std::string shape = " ";
 			if (it != blocks.end())
 			{
 				switch (it->blockType)
 				{
 					case BlockType::Rock:
 						shape = "\x1b[35m#\x1b[0m";
-						break;
-					case BlockType::Sand:
-						shape = "\x1b[33mo\x1b[0m";
 						break;
 				}
 			}
@@ -68,6 +62,34 @@ void render(const std::vector<Block>& blocks, const std::pair<uint16_t, uint16_t
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 
 	std::cout << render;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+void renderSand(const std::vector<Block>& blocks, const std::pair<uint16_t, uint16_t>& minMaxX, const std::pair<uint16_t, uint16_t>& minMaxY)
+{
+	for (auto& it : blocks)
+	{
+		if (it.blockType != BlockType::Sand)
+			continue;
+
+		COORD coord;
+		coord.X = it.x - minMaxX.first;
+		coord.Y = it.y;
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+		std::cout << "\x1b[33mo\x1b[0m";
+	}
+}
+
+void renderCurrentBlock(const std::vector<Block>& blocks, const std::pair<uint16_t, uint16_t>& minMaxX, const std::pair<uint16_t, uint16_t>& minMaxY, Block* pCurrentBlock, bool eraseBlock = false)
+{
+	COORD coord;
+	coord.X = pCurrentBlock->x - minMaxX.first;
+	coord.Y = pCurrentBlock->y;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+	if (eraseBlock)
+		std::cout << " ";
+	else
+		std::cout << "\x1b[31mo\x1b[0m";
 }
 
 void read(const std::list<std::string>& inputs, std::vector<Block>& blocks, std::pair<uint16_t, uint16_t>& minMaxX, std::pair<uint16_t, uint16_t>& minMaxY)
@@ -138,6 +160,33 @@ void read(const std::list<std::string>& inputs, std::vector<Block>& blocks, std:
 	minMaxX.second++;
 }
 
+Block getNextBlockBelow(std::vector<Block>& blocks, Block& sandBlock)
+{
+	std::vector<Block> matches;
+	std::remove_copy_if(blocks.begin(), blocks.end(),
+		std::back_inserter(matches), [&sandBlock](const Block& block) {
+			return block.x != sandBlock.x;
+		});
+
+	Block nextBlock = sandBlock;
+	for (auto& it : matches)
+	{
+		if (it.y > sandBlock.y && (nextBlock.y == sandBlock.y || it.y < nextBlock.y))
+			nextBlock = it;
+	}
+	return nextBlock;
+}
+
+void SetFontSize(int fontSize)
+{
+	static CONSOLE_FONT_INFOEX  fontex;
+	fontex.cbSize = sizeof(CONSOLE_FONT_INFOEX);
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	GetCurrentConsoleFontEx(hOut, 0, &fontex);
+	fontex.dwFontSize.Y = fontSize;
+	SetCurrentConsoleFontEx(hOut, NULL, &fontex);
+}
+
 void Exercise::Part1(std::list<std::string> inputs)
 {
 	std::vector<Block> blocks;
@@ -145,16 +194,20 @@ void Exercise::Part1(std::list<std::string> inputs)
 	std::pair<uint16_t, uint16_t> minMaxY = { 0, 0 };
 	read(inputs, blocks, minMaxX, minMaxY);
 
+#ifdef __RENDER
+	SetFontSize(6);
+	renderBg(blocks, minMaxX, minMaxY);
+#endif
 	Block sandBlock(500, 0, BlockType::Sand);
 	while (true)
 	{
-		auto it = std::find_if(blocks.begin(), blocks.end(),
-			[&sandBlock](const Block& block) {
-				return sandBlock.x == block.x && sandBlock.y + 1 == block.y;
-			});
+		Block nextBlock = getNextBlockBelow(blocks, sandBlock);
+#ifdef __RENDER
+		renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock, true);
+#endif
 
-		if (it == blocks.end())
-			sandBlock.y++;
+		if (sandBlock.y + 1 < nextBlock.y)
+			sandBlock.y = nextBlock.y - 1;
 		else
 		{
 			auto it = std::find_if(blocks.begin(), blocks.end(),
@@ -182,6 +235,9 @@ void Exercise::Part1(std::list<std::string> inputs)
 				else
 				{
 					blocks.push_back(sandBlock);
+#ifdef __RENDER
+					renderSand(blocks, minMaxX, minMaxY);
+#endif
 					sandBlock = Block(500, 0, BlockType::Sand);
 				}
 			}
@@ -189,9 +245,14 @@ void Exercise::Part1(std::list<std::string> inputs)
 
 		if (sandBlock.y > minMaxY.second + 1)
 			break;
-		render(blocks, minMaxX, minMaxY, &sandBlock);
+#ifdef __RENDER
+		renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock);
+#endif
 	}
-	render(blocks, minMaxX, minMaxY, &sandBlock);
+#ifdef __RENDER
+	renderSand(blocks, minMaxX, minMaxY);
+	renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock);
+#endif
 
 	std::cout << "Sand blocks resting: " << std::count_if(blocks.begin(), blocks.end(),
 		[](const Block& block) {
@@ -206,6 +267,10 @@ void Exercise::Part2(std::list<std::string> inputs)
 	std::pair<uint16_t, uint16_t> minMaxY = { 0, 0 };
 	read(inputs, blocks, minMaxX, minMaxY);
 
+#ifdef __RENDER
+	SetFontSize(6);
+	renderBg(blocks, minMaxX, minMaxY);
+#endif
 	Block sandBlock(500, 0, BlockType::Sand);
 	while (true)
 	{
@@ -216,13 +281,13 @@ void Exercise::Part2(std::list<std::string> inputs)
 			continue;
 		}
 
-		auto it = std::find_if(blocks.begin(), blocks.end(),
-			[&sandBlock](const Block& block) {
-				return sandBlock.x == block.x && sandBlock.y + 1 == block.y;
-			});
+		Block nextBlock = getNextBlockBelow(blocks, sandBlock);
+#ifdef __RENDER
+		renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock, true);
+#endif
 
-		if (it == blocks.end())
-			sandBlock.y++;
+		if (sandBlock.y + 1 < nextBlock.y)
+			sandBlock.y = nextBlock.y - 1;
 		else
 		{
 			auto it = std::find_if(blocks.begin(), blocks.end(),
@@ -256,19 +321,38 @@ void Exercise::Part2(std::list<std::string> inputs)
 					}
 
 					if (sandBlock.x < minMaxX.first)
+					{
+#ifdef __RENDER
+						renderBg(blocks, minMaxX, minMaxY);
+#endif
 						minMaxX.first = sandBlock.x;
+					}
 					else if (sandBlock.x > minMaxX.second)
+					{
+#ifdef __RENDER
+						renderBg(blocks, minMaxX, minMaxY);
+#endif
 						minMaxX.second = sandBlock.x;
+					}
 
+#ifdef __RENDER
+					renderSand(blocks, minMaxX, minMaxY);
+#endif
 					blocks.push_back(sandBlock);
 					sandBlock = Block(500, 0, BlockType::Sand);
 					continue;
 				}
 			}
 		}
-		render(blocks, minMaxX, minMaxY, &sandBlock);
+#ifdef __RENDER
+		renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock);
+#endif
 	}
-	render(blocks, minMaxX, minMaxY, &sandBlock);
+#ifdef __RENDER
+	renderBg(blocks, minMaxX, minMaxY);
+	renderSand(blocks, minMaxX, minMaxY);
+	renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock);
+#endif
 
 	std::cout << "Sand blocks resting: " << std::count_if(blocks.begin(), blocks.end(),
 		[](const Block& block) {
