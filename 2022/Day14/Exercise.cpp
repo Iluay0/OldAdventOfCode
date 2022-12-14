@@ -1,29 +1,9 @@
 #include "../../Utils/Utils.h"
 #include "Exercise.h"
 
-#define __RENDER
+// #define __RENDER
 
-enum BlockType
-{
-	Rock = 0,
-	Sand
-};
-
-struct Block
-{
-	BlockType blockType;
-	uint16_t x;
-	uint16_t y;
-
-	Block(uint16_t xx, uint16_t yy, BlockType type)
-	{
-		x = xx;
-		y = yy;
-		blockType = type;
-	}
-};
-
-void renderBg(const std::vector<Block>& blocks, const std::pair<uint16_t, uint16_t>& minMaxX, const std::pair<uint16_t, uint16_t>& minMaxY)
+void Exercise::renderBg()
 {
 	std::string render = "";
 	for (uint16_t y = minMaxY.first; y <= minMaxY.second + 2; y++)
@@ -65,7 +45,7 @@ void renderBg(const std::vector<Block>& blocks, const std::pair<uint16_t, uint16
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-void renderSand(const std::vector<Block>& blocks, const std::pair<uint16_t, uint16_t>& minMaxX, const std::pair<uint16_t, uint16_t>& minMaxY)
+void Exercise::renderSand()
 {
 	for (auto& it : blocks)
 	{
@@ -80,7 +60,7 @@ void renderSand(const std::vector<Block>& blocks, const std::pair<uint16_t, uint
 	}
 }
 
-void renderCurrentBlock(const std::vector<Block>& blocks, const std::pair<uint16_t, uint16_t>& minMaxX, const std::pair<uint16_t, uint16_t>& minMaxY, Block* pCurrentBlock, bool eraseBlock = false)
+void Exercise::renderCurrentBlock(Block* pCurrentBlock, bool eraseBlock)
 {
 	COORD coord;
 	coord.X = pCurrentBlock->x - minMaxX.first;
@@ -92,8 +72,10 @@ void renderCurrentBlock(const std::vector<Block>& blocks, const std::pair<uint16
 		std::cout << "\x1b[31mo\x1b[0m";
 }
 
-void read(const std::list<std::string>& inputs, std::vector<Block>& blocks, std::pair<uint16_t, uint16_t>& minMaxX, std::pair<uint16_t, uint16_t>& minMaxY)
+void Exercise::read(const std::list<std::string>& inputs)
 {
+	minMaxX = { 500, 500 };
+	minMaxY = { 0, 0 };
 	for (auto& it : inputs)
 	{
 		auto split = Utils::split(it, " -> ");
@@ -160,7 +142,7 @@ void read(const std::list<std::string>& inputs, std::vector<Block>& blocks, std:
 	minMaxX.second++;
 }
 
-Block getNextBlockBelow(std::vector<Block>& blocks, Block& sandBlock)
+Block Exercise::getNextBlockBelow(Block& sandBlock)
 {
 	std::vector<Block> matches;
 	std::remove_copy_if(blocks.begin(), blocks.end(),
@@ -177,37 +159,24 @@ Block getNextBlockBelow(std::vector<Block>& blocks, Block& sandBlock)
 	return nextBlock;
 }
 
-void SetFontSize(int fontSize)
-{
-	static CONSOLE_FONT_INFOEX  fontex;
-	fontex.cbSize = sizeof(CONSOLE_FONT_INFOEX);
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	GetCurrentConsoleFontEx(hOut, 0, &fontex);
-	fontex.dwFontSize.Y = fontSize;
-	SetCurrentConsoleFontEx(hOut, NULL, &fontex);
-}
-
 void Exercise::Part1(std::list<std::string> inputs)
 {
-	std::vector<Block> blocks;
-	std::pair<uint16_t, uint16_t> minMaxX = { 500, 500 };
-	std::pair<uint16_t, uint16_t> minMaxY = { 0, 0 };
-	read(inputs, blocks, minMaxX, minMaxY);
+	read(inputs);
 
 #ifdef __RENDER
-	SetFontSize(6);
-	renderBg(blocks, minMaxX, minMaxY);
+	Utils::SetFontSize(6);
+	renderBg();
 #endif
 	Block sandBlock(500, 0, BlockType::Sand);
 	while (true)
 	{
-		Block nextBlock = getNextBlockBelow(blocks, sandBlock);
+		Block nextBlock = getNextBlockBelow(sandBlock);
 #ifdef __RENDER
-		renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock, true);
+		renderCurrentBlock(&sandBlock, true);
 #endif
 
 		if (sandBlock.y + 1 < nextBlock.y)
-			sandBlock.y = nextBlock.y - 1;
+			sandBlock.setPos(sandBlock.x, nextBlock.y - 1);
 		else
 		{
 			auto it = std::find_if(blocks.begin(), blocks.end(),
@@ -216,10 +185,7 @@ void Exercise::Part1(std::list<std::string> inputs)
 				});
 
 			if (it == blocks.end())
-			{
-				sandBlock.x--;
-				sandBlock.y++;
-			}
+				sandBlock.setPos(sandBlock.x - 1, sandBlock.y + 1);
 			else
 			{
 				auto it = std::find_if(blocks.begin(), blocks.end(),
@@ -228,17 +194,14 @@ void Exercise::Part1(std::list<std::string> inputs)
 					});
 
 				if (it == blocks.end())
-				{
-					sandBlock.x++;
-					sandBlock.y++;
-				}
+					sandBlock.setPos(sandBlock.x + 1, sandBlock.y + 1);
 				else
 				{
 					blocks.push_back(sandBlock);
 #ifdef __RENDER
-					renderSand(blocks, minMaxX, minMaxY);
+					renderSand();
 #endif
-					sandBlock = Block(500, 0, BlockType::Sand);
+					sandBlock = Block(sandBlock.lastX, sandBlock.lastY, BlockType::Sand);
 				}
 			}
 		}
@@ -246,12 +209,12 @@ void Exercise::Part1(std::list<std::string> inputs)
 		if (sandBlock.y > minMaxY.second + 1)
 			break;
 #ifdef __RENDER
-		renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock);
+		renderCurrentBlock(&sandBlock);
 #endif
 	}
 #ifdef __RENDER
-	renderSand(blocks, minMaxX, minMaxY);
-	renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock);
+	renderSand();
+	renderCurrentBlock(&sandBlock);
 #endif
 
 	std::cout << "Sand blocks resting: " << std::count_if(blocks.begin(), blocks.end(),
@@ -262,32 +225,22 @@ void Exercise::Part1(std::list<std::string> inputs)
 
 void Exercise::Part2(std::list<std::string> inputs)
 {
-	std::vector<Block> blocks;
-	std::pair<uint16_t, uint16_t> minMaxX = { 500, 500 };
-	std::pair<uint16_t, uint16_t> minMaxY = { 0, 0 };
-	read(inputs, blocks, minMaxX, minMaxY);
+	read(inputs);
 
 #ifdef __RENDER
-	SetFontSize(6);
-	renderBg(blocks, minMaxX, minMaxY);
+	Utils::SetFontSize(6);
+	renderBg();
 #endif
 	Block sandBlock(500, 0, BlockType::Sand);
 	while (true)
 	{
-		if (sandBlock.y == minMaxY.second + 1)
-		{
-			blocks.push_back(sandBlock);
-			sandBlock = Block(500, 0, BlockType::Sand);
-			continue;
-		}
-
-		Block nextBlock = getNextBlockBelow(blocks, sandBlock);
+		Block nextBlock = getNextBlockBelow(sandBlock);
 #ifdef __RENDER
-		renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock, true);
+		renderCurrentBlock(&sandBlock, true);
 #endif
 
 		if (sandBlock.y + 1 < nextBlock.y)
-			sandBlock.y = nextBlock.y - 1;
+			sandBlock.setPos(sandBlock.x, nextBlock.y + 1);
 		else
 		{
 			auto it = std::find_if(blocks.begin(), blocks.end(),
@@ -296,10 +249,7 @@ void Exercise::Part2(std::list<std::string> inputs)
 				});
 
 			if (it == blocks.end())
-			{
-				sandBlock.x--;
-				sandBlock.y++;
-			}
+				sandBlock.setPos(sandBlock.x - 1, sandBlock.y + 1);
 			else
 			{
 				auto it = std::find_if(blocks.begin(), blocks.end(),
@@ -308,10 +258,7 @@ void Exercise::Part2(std::list<std::string> inputs)
 					});
 
 				if (it == blocks.end())
-				{
-					sandBlock.x++;
-					sandBlock.y++;
-				}
+					sandBlock.setPos(sandBlock.x + 1, sandBlock.y + 1);
 				else
 				{
 					if (sandBlock.x == 500 && sandBlock.y == 0)
@@ -323,35 +270,40 @@ void Exercise::Part2(std::list<std::string> inputs)
 					if (sandBlock.x < minMaxX.first)
 					{
 #ifdef __RENDER
-						renderBg(blocks, minMaxX, minMaxY);
+						renderBg();
 #endif
 						minMaxX.first = sandBlock.x;
 					}
 					else if (sandBlock.x > minMaxX.second)
 					{
 #ifdef __RENDER
-						renderBg(blocks, minMaxX, minMaxY);
+						renderBg();
 #endif
 						minMaxX.second = sandBlock.x;
 					}
 
 #ifdef __RENDER
-					renderSand(blocks, minMaxX, minMaxY);
+					renderSand();
 #endif
 					blocks.push_back(sandBlock);
-					sandBlock = Block(500, 0, BlockType::Sand);
+					sandBlock = Block(sandBlock.lastX, sandBlock.lastY, BlockType::Sand);
 					continue;
 				}
 			}
 		}
 #ifdef __RENDER
-		renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock);
+		renderCurrentBlock(&sandBlock);
 #endif
+		if (sandBlock.y == minMaxY.second + 1)
+		{
+			blocks.push_back(sandBlock);
+			sandBlock = Block(sandBlock.lastX, sandBlock.lastY, BlockType::Sand);
+		}
 	}
 #ifdef __RENDER
-	renderBg(blocks, minMaxX, minMaxY);
-	renderSand(blocks, minMaxX, minMaxY);
-	renderCurrentBlock(blocks, minMaxX, minMaxY, &sandBlock);
+	renderBg();
+	renderSand();
+	renderCurrentBlock(&sandBlock);
 #endif
 
 	std::cout << "Sand blocks resting: " << std::count_if(blocks.begin(), blocks.end(),

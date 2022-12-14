@@ -102,3 +102,13 @@ bool Utils::isShuffledSubstring(std::string A, std::string B)
         }
     }
 }
+
+void Utils::SetFontSize(int fontSize)
+{
+    static CONSOLE_FONT_INFOEX  fontex;
+    fontex.cbSize = sizeof(CONSOLE_FONT_INFOEX);
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    GetCurrentConsoleFontEx(hOut, 0, &fontex);
+    fontex.dwFontSize.Y = fontSize;
+    SetCurrentConsoleFontEx(hOut, NULL, &fontex);
+}

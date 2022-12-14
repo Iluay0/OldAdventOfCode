@@ -27,4 +27,5 @@ public:
     static int binaryToInt(long long n);
     static void replaceAll(std::string& str, const std::string& from, const std::string& to);
     static bool isShuffledSubstring(std::string A, std::string B);
+    static void SetFontSize(int fontSize);
 };
