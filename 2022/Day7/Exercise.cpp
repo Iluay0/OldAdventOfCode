@@ -1,85 +1,20 @@
 #include "../../Utils/Utils.h"
 #include "Exercise.h"
 
-struct File
-{
-	std::string name;
-	int size;
-
-	File(std::string fileName, int fileSize)
-	{
-		name = fileName;
-		size = fileSize;
-	}
-};
-
-struct Directory
-{
-	std::string name;
-	std::list<Directory> subDirectories;
-	std::list<File> files;
-	Directory* pParentDirectory;
-	int totalSize;
-
-	int getSize()
-	{
-		int size = 0;
-		for (auto& it : subDirectories)
-			size += it.getSize();
-		for (auto& it : files)
-			size += it.size;
-		totalSize = size;
-		return size;
-	}
-
-	Directory* getSubDirectoryWithSmallestSizeMoreThan(int size, int max)
-	{
-		Directory* pDir = this;
-		for (auto& it : subDirectories)
-		{
-			Directory* pPotentialDir = it.getSubDirectoryWithSmallestSizeMoreThan(size, max);
-			if (pPotentialDir && pPotentialDir->getSize() < max)
-			{
-				pDir = pPotentialDir;
-				max = pDir->getSize();
-			}
-		}
-		return pDir;
-	}
-
-	int getTotalSizeOfSubDirectoriesWithSizeLessThan(int size)
-	{
-		int retSize = 0;
-		for (auto& it : subDirectories)
-		{
-			int subDirSize = it.getSize();
-			if (subDirSize < size)
-				retSize += subDirSize;
-			retSize += it.getTotalSizeOfSubDirectoriesWithSizeLessThan(size);
-		}
-		return retSize;
-	}
-
-	Directory(std::string dirName)
-	{
-		name = dirName;
-	}
-};
-
-void createDir(Directory* pCurDir, std::string dest)
+void Exercise::createDir(std::string dest)
 {
 	Directory subDir(dest);
 	subDir.pParentDirectory = pCurDir;
 	pCurDir->subDirectories.push_back(subDir);
 }
 
-void createFile(Directory* pCurDir, std::string name, int size)
+void Exercise::createFile(std::string name, int size)
 {
 	File file(name, size);
 	pCurDir->files.push_back(file);
 }
 
-void cd(Directory*& pCurDir, std::string dest)
+void Exercise::cd(std::string dest)
 {
 	if (dest[0] == '/') // todo: implement rootDir and homeDir?
 		return;
@@ -97,8 +32,8 @@ void cd(Directory*& pCurDir, std::string dest)
 
 	if (itDir == pCurDir->subDirectories.end())
 	{
-		createDir(pCurDir, dest);
-		cd(pCurDir, dest);
+		createDir(dest);
+		cd(dest);
 	}
 	else
 		pCurDir = &*itDir;
@@ -109,7 +44,7 @@ void cd(Directory*& pCurDir, std::string dest)
 void Exercise::Part1(std::list<std::string> inputs)
 {
 	Directory rootDir("");
-	Directory* pCurDir = &rootDir;
+	pCurDir = &rootDir;
 
 	bool ls = false;
 	for (auto& it : inputs)
@@ -122,7 +57,7 @@ void Exercise::Part1(std::list<std::string> inputs)
 		}
 
 		if (split[0] == "cd")
-			cd(pCurDir, split[1]);
+			cd(split[1]);
 		else if (split[0] == "ls")
 		{
 			ls = true;
@@ -131,9 +66,9 @@ void Exercise::Part1(std::list<std::string> inputs)
 		else if (ls)
 		{
 			if (split[0] == "dir")
-				createDir(pCurDir, split[1]);
+				createDir(split[1]);
 			else
-				createFile(pCurDir, split[1], stoi(split[0]));
+				createFile(split[1], stoi(split[0]));
 		}
 	}
 
@@ -143,7 +78,7 @@ void Exercise::Part1(std::list<std::string> inputs)
 void Exercise::Part2(std::list<std::string> inputs)
 {
 	Directory rootDir("");
-	Directory* pCurDir = &rootDir;
+	pCurDir = &rootDir;
 
 	bool ls = false;
 	for (auto& it : inputs)
@@ -156,7 +91,7 @@ void Exercise::Part2(std::list<std::string> inputs)
 		}
 
 		if (split[0] == "cd")
-			cd(pCurDir, split[1]);
+			cd(split[1]);
 		else if (split[0] == "ls")
 		{
 			ls = true;
@@ -165,9 +100,9 @@ void Exercise::Part2(std::list<std::string> inputs)
 		else if (ls)
 		{
 			if (split[0] == "dir")
-				createDir(pCurDir, split[1]);
+				createDir(split[1]);
 			else
-				createFile(pCurDir, split[1], stoi(split[0]));
+				createFile(split[1], stoi(split[0]));
 		}
 	}
 

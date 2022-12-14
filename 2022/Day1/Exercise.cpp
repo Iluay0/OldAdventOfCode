@@ -1,7 +1,25 @@
 #include "../../Utils/Utils.h"
-#include "Part2.h"
+#include "Exercise.h"
 
-void Part2::Run(std::list<std::string> inputs)
+void Exercise::Part1(std::list<std::string> inputs)
+{
+	int mostCalories = 0;
+	int curCalories = 0;
+	for (auto& it : inputs)
+	{
+		if (it == "")
+		{
+			if (curCalories > mostCalories)
+				mostCalories = curCalories;
+			curCalories = 0;
+		}
+		else
+			curCalories += stoi(it);
+	}
+	std::cout << "Most Calories carried: " << mostCalories << "\n";
+}
+
+void Exercise::Part2(std::list<std::string> inputs)
 {
 	std::list<int> mostCalories = { 0, 0, 0 };
 	int curCalories = 0;

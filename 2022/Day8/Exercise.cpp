@@ -1,16 +1,9 @@
 #include "../../Utils/Utils.h"
 #include "Exercise.h"
 
-enum Visibility
-{
-	None = 0x0,
-	Top = 0x1,
-	Left = 0x2,
-	Right = 0x4,
-	Bottom = 0x8
-};
 
-int getVisibility(std::vector<std::vector<int>>& treeHeights, int x, int y)
+
+int Exercise::getVisibility(int x, int y)
 {
 	int visibility = 0x0;
 
@@ -65,7 +58,7 @@ int getVisibility(std::vector<std::vector<int>>& treeHeights, int x, int y)
 	return visibility;
 }
 
-int getScore(std::vector<std::vector<int>>& treeHeights, int x, int y)
+int Exercise::getScore(int x, int y)
 {
 	int score = 1;
 
@@ -116,7 +109,6 @@ int getScore(std::vector<std::vector<int>>& treeHeights, int x, int y)
 
 void Exercise::Part1(std::list<std::string> inputs)
 {
-	std::vector<std::vector<int>> treeHeights;
 	for (auto& it : inputs)
 	{
 		std::vector<int> line;
@@ -132,7 +124,7 @@ void Exercise::Part1(std::list<std::string> inputs)
 	{
 		for (int y = 0; y < treeHeights[x].size(); y++)
 		{
-			if (getVisibility(treeHeights, x, y) != Visibility::None)
+			if (getVisibility(x, y) != Visibility::None)
 				visible++;
 		}
 	}
@@ -141,7 +133,6 @@ void Exercise::Part1(std::list<std::string> inputs)
 
 void Exercise::Part2(std::list<std::string> inputs)
 {
-	std::vector<std::vector<int>> treeHeights;
 	for (auto& it : inputs)
 	{
 		std::vector<int> line;
@@ -157,7 +148,7 @@ void Exercise::Part2(std::list<std::string> inputs)
 	{
 		for (int y = 0; y < treeHeights[x].size(); y++)
 		{
-			int newScore = getScore(treeHeights, x, y);
+			int newScore = getScore(x, y);
 			if (newScore > score)
 				score = newScore;
 		}

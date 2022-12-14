@@ -41,7 +41,7 @@ void Exercise::Part2(std::list<std::string> inputs)
 		if (pixel - 1 <= x && pixel + 1 >= x)
 			std::cout << "#";
 		else
-			std::cout << ".";
+			std::cout << " ";
 
 		x += buffers[i];
 		if ((i + 1) % 40 == 0)
