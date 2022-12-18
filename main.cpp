@@ -1,5 +1,5 @@
 ﻿#include "Utils/Utils.h"
-#include "2022/Day16/Exercise.h"
+#include "2022/Day17/Exercise.h"
 
 int main()
 {

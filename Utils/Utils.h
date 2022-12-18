@@ -18,6 +18,8 @@
 #include <windows.h>
 #include <ctype.h>
 #include <regex>
+#include <chrono>
+#include <thread>
 
 class Utils
 {
