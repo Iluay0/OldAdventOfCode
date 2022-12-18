@@ -17,6 +17,7 @@
 #include <set>
 #include <windows.h>
 #include <ctype.h>
+#include <regex>
 
 class Utils
 {
