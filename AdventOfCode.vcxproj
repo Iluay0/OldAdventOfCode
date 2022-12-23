@@ -128,12 +128,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="2022\Day22\Exercise.cpp" />
+    <ClCompile Include="2022\Day23\Exercise.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utils\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="2022\Day22\Exercise.h" />
+    <ClInclude Include="2022\Day23\Exercise.h" />
     <ClInclude Include="Utils\Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
